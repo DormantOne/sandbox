@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Text Display</title>
+</head>
+<body>
+  <h1>Text Display</h1>
+  <div id="textDisplay"></div>
+
+  <script>
+    async function fetchTexts() {
+      const response = await fetch('https://us-central1-sandbox-9dc3f.cloudfunctions.net/getTexts');
+      const texts = await response.json();
+      const textDisplay = document.getElementById('textDisplay');
+      textDisplay.innerHTML = '';
+      texts.forEach((text) => {
+        const textElement = document.createElement('p');
+        textElement.textContent = text.text;
+        textDisplay.appendChild(textElement);
+      });
+    }
+
+    fetchTexts();
+  </script>
+</body>
+</html>
