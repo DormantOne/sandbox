@@ -9,17 +9,28 @@
 
   <script>
     async function fetchTexts() {
-      const response = await fetch('https://us-central1-sandbox-9dc3f.cloudfunctions.net/getTexts');
-      const texts = await response.json();
-      const textDisplay = document.getElementById('textDisplay');
-      textDisplay.innerHTML = '';
-      texts.forEach((text) => {
-        const textElement = document.createElement('p');
-        textElement.textContent = text.text;
-        textDisplay.appendChild(textElement);
-      });
+      try {
+        const response = await fetch('https://us-central1-sandbox-9dc3f.cloudfunctions.net/getTexts');
+        if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+        }
+        const texts = await response.json();
+        const textDisplay = document.getElementById('textDisplay');
+        textDisplay.innerHTML = '';
+        texts.forEach((text) => {
+          const textElement = document.createElement('p');
+          textElement.textContent = text.text;
+          textDisplay.appendChild(textElement);
+        });
+      } catch (error) {
+        console.error('Fetch error: ', error);
+      }
     }
 
+    // Fetch texts every second
+    setInterval(fetchTexts, 1000);
+
+    // Initial fetch
     fetchTexts();
   </script>
 </body>
