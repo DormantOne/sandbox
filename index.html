@@ -3,6 +3,36 @@
 <head>
   <title>Text Display</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    #textDisplay {
+      width: 80%;
+      margin-bottom: 20px;
+    }
+    p {
+      background: #fff;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    #qrcode {
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
   <h1>Text Display</h1>
@@ -21,7 +51,7 @@
         textDisplay.innerHTML = '';
         texts.forEach((text) => {
           const textElement = document.createElement('p');
-          textElement.textContent = text.text;
+          textElement.textContent = `Call Number: ${text.callNumber}, User: ${text.userName}, Text: ${text.text}`;
           textDisplay.appendChild(textElement);
         });
       } catch (error) {
