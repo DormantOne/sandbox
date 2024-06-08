@@ -36,11 +36,18 @@
 </head>
 <body>
   <h1>Text Display</h1>
+  <div id="callNumber">Call Number: <span id="callNumberValue"></span></div>
   <div id="textDisplay"></div>
   <div id="qrcode"></div>
 
   <script>
+    // Function to generate a unique call number
+    function generateCallNumber() {
+      return Math.floor(1000 + Math.random() * 9000); // Generates a random 4-digit number
+    }
+
     async function fetchTexts() {
+      const callNumber = document.getElementById('callNumberValue').textContent;
       try {
         const response = await fetch('https://us-central1-sandbox-9dc3f.cloudfunctions.net/getTexts');
         if (!response.ok) {
@@ -49,11 +56,13 @@
         const texts = await response.json();
         const textDisplay = document.getElementById('textDisplay');
         textDisplay.innerHTML = '';
-        texts.forEach((text) => {
-          const textElement = document.createElement('p');
-          textElement.textContent = `Call Number: ${text.callNumber}, User: ${text.userName}, Text: ${text.text}`;
-          textDisplay.appendChild(textElement);
-        });
+        texts
+          .filter(text => text.callNumber == callNumber)
+          .forEach((text) => {
+            const textElement = document.createElement('p');
+            textElement.textContent = `Call Number: ${text.callNumber}, User: ${text.userName}, Text: ${text.text}`;
+            textDisplay.appendChild(textElement);
+          });
       } catch (error) {
         console.error('Fetch error: ', error);
       }
@@ -65,12 +74,16 @@
     // Initial fetch
     fetchTexts();
 
-    // Generate QR Code
-    const qrcode = new QRCode(document.getElementById("qrcode"), {
-      text: "https://dormantone.github.io/sandbox/text-input.html",
-      width: 128,
-      height: 128,
-    });
+    // Set up the call number and QR code
+    window.onload = function() {
+      const callNumber = generateCallNumber();
+      document.getElementById('callNumberValue').textContent = callNumber;
+      const qrcode = new QRCode(document.getElementById("qrcode"), {
+        text: `https://dormantone.github.io/sandbox/text-input.html?callNumber=${callNumber}`,
+        width: 128,
+        height: 128,
+      });
+    };
   </script>
 </body>
 </html>
