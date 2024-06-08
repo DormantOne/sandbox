@@ -37,9 +37,10 @@
   <button onclick="sendText()">Send</button>
 
   <script>
-    // Function to generate a unique call number
-    function generateCallNumber() {
-      return Math.floor(1000 + Math.random() * 9000); // Generates a random 4-digit number
+    // Function to get URL parameters
+    function getParameterByName(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
     }
 
     // Function to send text to the server
@@ -88,7 +89,8 @@
 
     // Set up the initial call number and user name
     window.onload = function() {
-      document.getElementById('callNumberValue').textContent = generateCallNumber();
+      const callNumber = getParameterByName('callNumber');
+      document.getElementById('callNumberValue').textContent = callNumber;
       const savedUserName = localStorage.getItem('userName');
       if (savedUserName) {
         document.getElementById('userNameInput').value = savedUserName;
