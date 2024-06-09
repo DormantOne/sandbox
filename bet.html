@@ -64,7 +64,6 @@
       return response.json();
     }
 
-    // Get the call number from URL query parameters
     const urlParams = new URLSearchParams(window.location.search);
     const callNumber = urlParams.get('callNumber');
     document.getElementById('callNumber').value = callNumber;
@@ -75,12 +74,19 @@
       const horse = document.getElementById('horse').value;
 
       try {
-        const result = await callFirebaseFunction('https://us-central1-your-project-id.cloudfunctions.net/placeBet', { userName, horse, callNumber });
-        console.log(result);
-        alert('Bet placed successfully!');
+        const result = await callFirebaseFunction('https://placebet-3zf4b6gogq-uc.a.run.app', {
+          userName,
+          horse,
+          callNumber
+        });
+        if (result.success) {
+          alert('Bet placed successfully!');
+        } else {
+          alert('Failed to place bet: ' + result.error);
+        }
       } catch (error) {
         console.error('Error placing bet:', error);
-        alert('Failed to place bet.');
+        alert('Error placing bet: ' + error.message);
       }
     });
   </script>
