@@ -53,8 +53,8 @@
   </form>
 
   <script>
-    async function callFirebaseFunction(functionName, data) {
-      const response = await fetch(`https://us-central1-your-project-id.cloudfunctions.net/${functionName}`, {
+    async function callFirebaseFunction(url, data) {
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -75,7 +75,7 @@
       const horse = document.getElementById('horse').value;
 
       try {
-        const result = await callFirebaseFunction('placeBet', { userName, horse, callNumber });
+        const result = await callFirebaseFunction('https://us-central1-your-project-id.cloudfunctions.net/placeBet', { userName, horse, callNumber });
         console.log(result);
         alert('Bet placed successfully!');
       } catch (error) {
