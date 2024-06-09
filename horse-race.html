@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Horse Race</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -48,6 +49,9 @@
     #qrcode {
       margin-top: 20px;
     }
+    #startRaceButton {
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -57,12 +61,23 @@
     <div id="bets"></div>
   </div>
   <div id="qrcode"></div>
+  <button id="startRaceButton" style="display: none;">Start Race</button>
   <div class="results-section" id="resultsSection" style="display:none;">
     <h3>Results</h3>
     <div id="resultMessage"></div>
   </div>
 
   <script>
+    // Generate the QR code
+    window.onload = function() {
+      const callNumber = new URLSearchParams(window.location.search).get('callNumber');
+      const qrcode = new QRCode(document.getElementById("qrcode"), {
+        text: `https://dormantone.github.io/sandbox/bet.html?callNumber=${callNumber}`,
+        width: 128,
+        height: 128,
+      });
+    };
+
     async function callFirebaseFunction(url, data) {
       const response = await fetch(url, {
         method: 'POST',
@@ -93,6 +108,12 @@
           betItem.textContent = `${bet.userName} bet on ${bet.horse}`;
           betsDiv.appendChild(betItem);
         });
+
+        // Show the start race button if there are two or more bets
+        if (bets.length >= 2) {
+          document.getElementById('startRaceButton').style.display = 'block';
+        }
+
       } catch (error) {
         console.error('Fetch error: ', error);
       }
@@ -100,6 +121,27 @@
 
     setInterval(fetchBets, 1000);
     fetchBets();
+
+    document.getElementById('startRaceButton').addEventListener('click', async () => {
+      try {
+        const result = await callFirebaseFunction('https://us-central1-sandbox-9dc3f.cloudfunctions.net/pickWinner', {
+          callNumber
+        });
+
+        if (result.success) {
+          const { firstPlace, secondPlace } = result.results;
+          document.getElementById('resultMessage').textContent = `1st place: ${firstPlace}, 2nd place: ${secondPlace}`;
+          document.getElementById('resultsSection').style.display = 'block';
+        } else {
+          document.getElementById('resultMessage').textContent = 'Failed to pick winner.';
+          document.getElementById('resultsSection').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Error picking winner:', error);
+        document.getElementById('resultMessage').textContent = 'Error picking winner.';
+        document.getElementById('resultsSection').style.display = 'block';
+      }
+    });
   </script>
 </body>
 </html>
