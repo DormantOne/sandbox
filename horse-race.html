@@ -68,16 +68,6 @@
   </div>
 
   <script>
-    // Generate the QR code
-    window.onload = function() {
-      const callNumber = new URLSearchParams(window.location.search).get('callNumber');
-      const qrcode = new QRCode(document.getElementById("qrcode"), {
-        text: `https://dormantone.github.io/sandbox/bet.html?callNumber=${callNumber}`,
-        width: 128,
-        height: 128,
-      });
-    };
-
     async function callFirebaseFunction(url, data) {
       const response = await fetch(url, {
         method: 'POST',
@@ -89,15 +79,28 @@
       return response.json();
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const callNumber = urlParams.get('callNumber');
+    // Generate the QR code and set the call number on load
+    window.onload = async function() {
+      const createRaceResponse = await callFirebaseFunction('https://us-central1-sandbox-9dc3f.cloudfunctions.net/createRace', {});
+      const callNumber = createRaceResponse.callNumber;
+      const qrcode = new QRCode(document.getElementById("qrcode"), {
+        text: `https://dormantone.github.io/sandbox/bet.html?callNumber=${callNumber}`,
+        width: 128,
+        height: 128,
+      });
+      window.callNumber = callNumber;
+      fetchBets();
+    };
 
     async function fetchBets() {
       try {
-        const response = await fetch(`https://us-central1-sandbox-9dc3f.cloudfunctions.net/getBets?callNumber=${callNumber}`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok ' + response.statusText);
-        }
+        const response = await fetch('https://us-central1-sandbox-9dc3f.cloudfunctions.net/getBets', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ data: { callNumber: window.callNumber } })
+        });
         const data = await response.json();
         const bets = data.bets;
         const betsDiv = document.getElementById('bets');
@@ -109,23 +112,20 @@
           betsDiv.appendChild(betItem);
         });
 
-        // Show the start race button if there are two or more bets
         if (bets.length >= 2) {
           document.getElementById('startRaceButton').style.display = 'block';
         }
-
       } catch (error) {
         console.error('Fetch error: ', error);
       }
     }
 
     setInterval(fetchBets, 1000);
-    fetchBets();
 
     document.getElementById('startRaceButton').addEventListener('click', async () => {
       try {
         const result = await callFirebaseFunction('https://us-central1-sandbox-9dc3f.cloudfunctions.net/pickWinner', {
-          callNumber
+          data: { callNumber: window.callNumber }
         });
 
         if (result.success) {
