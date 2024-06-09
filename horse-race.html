@@ -1,153 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Horse Race</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-            margin: 0;
-        }
-        .board {
-            display: grid;
-            grid-template-columns: repeat(16, 40px);
-            grid-template-rows: repeat(8, 40px);
-            position: relative;
-            margin-bottom: 20px;
-        }
-        .square {
-            width: 40px;
-            height: 40px;
-        }
-        .horse {
-            height: 10px;
-            width: 10px;
-            border-radius: 50%;
-            position: absolute;
-            z-index: 2;
-            transition: top 0.5s linear, left 0.5s linear;
-        }
-        .red-horse { background-color: red; }
-        .blue-horse { background-color: blue; }
-        .green-horse { background-color: green; }
-        .yellow-horse { background-color: yellow; }
-        .betting-section, .results-section {
-            background: white;
-            padding: 20px;
-            border: 1px solid black;
-            margin-bottom: 10px;
-        }
-        .betting-item, .results-item {
-            margin-bottom: 10px;
-        }
-        #qrcode {
-            margin-top: 20px;
-        }
-    </style>
+  <title>Bet Display</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    #betDisplay {
+      width: 80%;
+      margin-bottom: 20px;
+    }
+    p {
+      background: #fff;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    #qrcode {
+      margin-top: 20px;
+    }
+    a {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
-    <h1>Horse Race</h1>
-    <div id="callNumber">Call Number: <span id="callNumberValue"></span></div>
-    <div class="betting-section" id="bettingSection">
-        <h3>Bets</h3>
-        <div id="bets"></div>
-    </div>
-    <div id="qrcode"></div><br>
-    <button id="startRaceButton">Start Race</button>
-    <div class="results-section" id="resultsSection" style="display:none;">
-        <h3>Results</h3>
-        <div id="resultMessage"></div>
-    </div>
+  <h1>Bet Display</h1>
+  <div id="callNumber">Call Number: <span id="callNumberValue"></span></div>
+  <div id="betDisplay"></div>
+  <div id="qrcode"></div>
+  <a href="https://dormantone.github.io/sandbox/bet.html" target="_blank">Place Bet</a>
 
-    <script>
-        // Function to generate a unique call number
-        function generateCallNumber() {
-            return Math.floor(1000 + Math.random() * 9000); // Generates a random 4-digit number
+  <script>
+    // Function to generate a unique call number
+    function generateCallNumber() {
+      return Math.floor(1000 + Math.random() * 9000); // Generates a random 4-digit number
+    }
+
+    async function fetchBets() {
+      const callNumber = document.getElementById('callNumberValue').textContent;
+      try {
+        const response = await fetch(`https://getbets-3zf4b6gogq-uc.a.run.app?callNumber=${callNumber}`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
         }
-
-        async function callFirebaseFunction(functionName, data) {
-            const response = await fetch(`https://us-central1-your-project-id.cloudfunctions.net/${functionName}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-            return response.json();
-        }
-
-        async function fetchBets() {
-            const callNumber = document.getElementById('callNumberValue').textContent;
-            try {
-                const response = await fetch(`https://us-central1-your-project-id.cloudfunctions.net/getResults?callNumber=${callNumber}`);
-                const result = await response.json();
-                const bets = result.bets || [];
-                const betsDiv = document.getElementById('bets');
-                betsDiv.innerHTML = '';
-                bets.forEach(bet => {
-                    const betItem = document.createElement('div');
-                    betItem.classList.add('betting-item');
-                    betItem.textContent = `${bet.user} bet on ${bet.firstChoice} and ${bet.secondChoice}`;
-                    betsDiv.appendChild(betItem);
-                });
-            } catch (error) {
-                console.error('Fetch error: ', error);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            const qrcodeContainer = document.getElementById('qrcode');
-            const startRaceButton = document.getElementById('startRaceButton');
-            const resultsSection = document.getElementById('resultsSection');
-            const resultMessage = document.getElementById('resultMessage');
-            let callNumber;
-
-            function setupCallNumberAndQRCode() {
-                callNumber = generateCallNumber();
-                document.getElementById('callNumberValue').textContent = callNumber;
-                new QRCode(qrcodeContainer, {
-                    text: `https://dormantone.github.io/sandbox/bet.html?callNumber=${callNumber}`,
-                    width: 128,
-                    height: 128,
-                });
-                console.log(`Game created with call number: ${callNumber}`);
-            }
-
-            startRaceButton.addEventListener('click', async () => {
-                try {
-                    const result = await callFirebaseFunction('pickWinner', { callNumber });
-
-                    if (result.success) {
-                        const { firstPlace, secondPlace } = result.results;
-                        resultMessage.textContent = `1st place: ${firstPlace}, 2nd place: ${secondPlace}`;
-                        resultsSection.style.display = 'block';
-                    } else {
-                        resultMessage.textContent = 'Failed to pick winner.';
-                        resultsSection.style.display = 'block';
-                    }
-                } catch (error) {
-                    console.error('Error picking winner:', error);
-                    resultMessage.textContent = 'Error picking winner.';
-                    resultsSection.style.display = 'block';
-                }
-            });
-
-            setupCallNumberAndQRCode();
-
-            // Fetch bets every second
-            setInterval(fetchBets, 1000);
-
-            // Initial fetch
-            fetchBets();
+        const data = await response.json();
+        const bets = data.bets; // Ensure we get the bets array
+        const betDisplay = document.getElementById('betDisplay');
+        betDisplay.innerHTML = '';
+        bets.forEach((bet) => {
+          const betElement = document.createElement('p');
+          betElement.textContent = `User: ${bet.userName}, Horse: ${bet.horse}`;
+          betDisplay.appendChild(betElement);
         });
-    </script>
+      } catch (error) {
+        console.error('Fetch error: ', error);
+      }
+    }
+
+    // Fetch bets every second
+    setInterval(fetchBets, 1000);
+
+    // Initial fetch
+    fetchBets();
+
+    // Set up the call number and QR code
+    window.onload = function() {
+      const callNumber = generateCallNumber();
+      document.getElementById('callNumberValue').textContent = callNumber;
+      const qrcode = new QRCode(document.getElementById("qrcode"), {
+        text: `https://dormantone.github.io/sandbox/bet.html?callNumber=${callNumber}`,
+        width: 128,
+        height: 128,
+      });
+    };
+  </script>
 </body>
 </html>
