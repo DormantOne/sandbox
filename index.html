@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Horse Race Bets</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -28,12 +29,16 @@
       border: 1px solid #ccc;
       border-radius: 5px;
     }
+    #qrcode {
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
   <h1>Horse Race Bets</h1>
   <div id="callNumber">Call Number: <span id="callNumberValue"></span></div>
   <div id="bets"></div>
+  <div id="qrcode"></div>
 
   <script>
     async function fetchBets() {
@@ -58,9 +63,18 @@
       }
     }
 
+    function createQRCode(callNumber) {
+      new QRCode(document.getElementById("qrcode"), {
+        text: `https://dormantone.github.io/sandbox/betting.html?callNumber=${callNumber}`,
+        width: 128,
+        height: 128,
+      });
+    }
+
     async function createCallNumber() {
       const callNumber = Math.floor(1000 + Math.random() * 9000); // Generates a random 4-digit number
       document.getElementById('callNumberValue').textContent = callNumber;
+      createQRCode(callNumber);
       setInterval(fetchBets, 1000);
     }
 
