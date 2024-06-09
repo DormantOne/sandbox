@@ -101,15 +101,22 @@
           throw new Error('Network response was not ok ' + response.statusText);
         }
         const data = await response.json();
-        const bets = data.bets;
+        const bets = data.bets || [];
         const betsDiv = document.getElementById('bets');
         betsDiv.innerHTML = '';
-        bets.forEach((bet) => {
-          const betItem = document.createElement('div');
-          betItem.classList.add('betting-item');
-          betItem.textContent = `${bet.userName} bet on ${bet.horse}`;
-          betsDiv.appendChild(betItem);
-        });
+
+        if (bets.length === 0) {
+          const noBetsMessage = document.createElement('p');
+          noBetsMessage.textContent = 'No bets have been placed yet.';
+          betsDiv.appendChild(noBetsMessage);
+        } else {
+          bets.forEach((bet) => {
+            const betItem = document.createElement('div');
+            betItem.classList.add('betting-item');
+            betItem.textContent = `${bet.userName} bet on ${bet.horse}`;
+            betsDiv.appendChild(betItem);
+          });
+        }
       } catch (error) {
         console.error('Fetch error: ', error);
       }
