@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Horse Race</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -48,15 +49,26 @@
     #qrcode {
       margin-top: 20px;
     }
+    a {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
+  <h1>Horse Race</h1>
+  <div id="callNumber">Call Number: <span id="callNumberValue"></span></div>
   <div class="board" id="board"></div>
   <div class="betting-section" id="bettingSection">
     <h3>Bets</h3>
     <div id="bets"></div>
   </div>
   <div id="qrcode"></div>
+  <a id="bettingLink" href="" target="_blank">Go to Betting Form</a>
   <button id="startRaceButton">Start Race</button>
   <div class="results-section" id="resultsSection" style="display:none;">
     <h3>Results</h3>
@@ -75,13 +87,16 @@
       return response.json();
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const callNumber = urlParams.get('callNumber');
-    document.getElementById('callNumber').value = callNumber;
+    function generateCallNumber() {
+      return Math.floor(1000 + Math.random() * 9000); // Generates a random 4-digit number
+    }
+
+    const callNumber = generateCallNumber();
+    document.getElementById('callNumberValue').textContent = callNumber;
 
     async function fetchBets() {
       try {
-        const response = await fetch(`https://getbets-3zf4b6gogq-uc.a.run.app?callNumber=${callNumber}`);
+        const response = await fetch(`https://us-central1-your-project-id.cloudfunctions.net/getBets?callNumber=${callNumber}`);
         if (!response.ok) {
           throw new Error('Network response was not ok ' + response.statusText);
         }
@@ -105,7 +120,7 @@
 
     document.getElementById('startRaceButton').addEventListener('click', async () => {
       try {
-        const result = await callFirebaseFunction('https://pickwinner-3zf4b6gogq-uc.a.run.app', {
+        const result = await callFirebaseFunction('https://us-central1-your-project-id.cloudfunctions.net/pickWinner', {
           callNumber
         });
 
@@ -123,6 +138,15 @@
         document.getElementById('resultsSection').style.display = 'block';
       }
     });
+
+    window.onload = function() {
+      const qrcode = new QRCode(document.getElementById("qrcode"), {
+        text: `https://dormantone.github.io/sandbox/bet.html?callNumber=${callNumber}`,
+        width: 128,
+        height: 128,
+      });
+      document.getElementById('bettingLink').href = `https://dormantone.github.io/sandbox/bet.html?callNumber=${callNumber}`;
+    };
   </script>
 </body>
 </html>
