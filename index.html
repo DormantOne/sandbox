@@ -47,23 +47,21 @@
   <div id="callNumber">Call Number: <span id="callNumberValue"></span></div>
   <div id="textDisplay"></div>
   <div id="qrcode"></div>
-  <a href="https://dormantone.github.io/sandbox/horse-race.html" target="_blank">Go to Horse Race</a>
+  <a href="https://dormantone.github.io/sandbox/text-input.html" target="_blank">Go to Text Input</a>
 
   <script>
-    // Function to generate a unique call number
-    function generateCallNumber() {
-      return Math.floor(1000 + Math.random() * 9000); // Generates a random 4-digit number
-    }
-
     async function fetchTexts() {
       const callNumber = document.getElementById('callNumberValue').textContent;
       try {
-        const response = await fetch('https://gettexts-3zf4b6gogq-uc.a.run.app');
-        if (!response.ok) {
-          throw new Error('Network response was not ok ' + response.statusText);
-        }
+        const response = await fetch('https://us-central1-sandbox-9dc3f.cloudfunctions.net/getTexts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({})
+        });
         const data = await response.json();
-        const texts = data.texts; // Ensure we get the texts array
+        const texts = data.texts;
         const textDisplay = document.getElementById('textDisplay');
         textDisplay.innerHTML = '';
         texts
@@ -81,12 +79,9 @@
     // Fetch texts every second
     setInterval(fetchTexts, 1000);
 
-    // Initial fetch
-    fetchTexts();
-
     // Set up the call number and QR code
     window.onload = function() {
-      const callNumber = generateCallNumber();
+      const callNumber = Math.floor(1000 + Math.random() * 9000); // Generates a random 4-digit number
       document.getElementById('callNumberValue').textContent = callNumber;
       const qrcode = new QRCode(document.getElementById("qrcode"), {
         text: `https://dormantone.github.io/sandbox/text-input.html?callNumber=${callNumber}`,
