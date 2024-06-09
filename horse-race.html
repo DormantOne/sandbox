@@ -96,7 +96,7 @@
 
     async function fetchBets() {
       try {
-        const response = await fetch(`https://us-central1-sandbox-9dc3f.cloudfunctions.net/getBets?callNumber=${callNumber}`);
+        const response = await fetch(`https://getbets-3zf4b6gogq-uc.a.run.app?callNumber=${callNumber}`);
         if (!response.ok) {
           throw new Error('Network response was not ok ' + response.statusText);
         }
@@ -127,7 +127,7 @@
 
     document.getElementById('startRaceButton').addEventListener('click', async () => {
       try {
-        const result = await callFirebaseFunction('https://us-central1-sandbox-9dc3f.cloudfunctions.net/pickWinner', {
+        const result = await callFirebaseFunction('https://pickwinner-3zf4b6gogq-uc.a.run.app', {
           callNumber
         });
 
