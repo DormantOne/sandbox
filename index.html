@@ -61,16 +61,20 @@
           body: JSON.stringify({})
         });
         const data = await response.json();
-        const texts = data.texts;
-        const textDisplay = document.getElementById('textDisplay');
-        textDisplay.innerHTML = '';
-        texts
-          .filter(text => text.callNumber == callNumber)
-          .forEach((text) => {
-            const textElement = document.createElement('p');
-            textElement.textContent = `Call Number: ${text.callNumber}, User: ${text.userName}, Text: ${text.text}`;
-            textDisplay.appendChild(textElement);
-          });
+        if (data && data.texts) {
+          const texts = data.texts;
+          const textDisplay = document.getElementById('textDisplay');
+          textDisplay.innerHTML = '';
+          texts
+            .filter(text => text.callNumber == callNumber)
+            .forEach((text) => {
+              const textElement = document.createElement('p');
+              textElement.textContent = `Call Number: ${text.callNumber}, User: ${text.userName}, Text: ${text.text}`;
+              textDisplay.appendChild(textElement);
+            });
+        } else {
+          console.error('Invalid data structure:', data);
+        }
       } catch (error) {
         console.error('Fetch error: ', error);
       }
