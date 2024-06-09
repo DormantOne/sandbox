@@ -60,7 +60,7 @@
         <h3>Bets</h3>
         <div id="bets"></div>
     </div>
-    <div id="qrcode"></div>
+    <div id="qrcode"></div><br>
     <button id="startRaceButton">Start Race</button>
     <div class="results-section" id="resultsSection" style="display:none;">
         <h3>Results</h3>
@@ -114,7 +114,7 @@
                 callNumber = generateCallNumber();
                 document.getElementById('callNumberValue').textContent = callNumber;
                 new QRCode(qrcodeContainer, {
-                    text: `https://your-domain.com/bet.html?callNumber=${callNumber}`,
+                    text: `https://dormantone.github.io/sandbox/bet.html?callNumber=${callNumber}`,
                     width: 128,
                     height: 128,
                 });
