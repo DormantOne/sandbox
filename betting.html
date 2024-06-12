@@ -25,6 +25,15 @@
     input, select, button {
       margin-bottom: 10px;
     }
+    #startRaceButton {
+      display: none;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -40,6 +49,7 @@
     </select>
     <button type="submit">Place Bet</button>
   </form>
+  <button id="startRaceButton">Start Race</button>
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
@@ -62,6 +72,7 @@
         const result = await response.json();
         if (result.success) {
           alert('Bet placed successfully!');
+          checkBets();
         } else {
           alert(result.error || 'Failed to place bet');
         }
@@ -70,6 +81,31 @@
         alert('Error placing bet');
       }
     });
+
+    async function checkBets() {
+      try {
+        const response = await fetch(`https://us-central1-sandbox-9dc3f.cloudfunctions.net/getBets?callNumber=${callNumber}`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+        }
+        const data = await response.json();
+        if (data.bets.length >= 2) {
+          document.getElementById('startRaceButton').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+      }
+    }
+
+    document.getElementById('startRaceButton').addEventListener('click', () => {
+      const raceResults = ['red', 'blue', 'green', 'yellow'];
+      const winnerHorse = raceResults[Math.floor(Math.random() * raceResults.length)];
+
+      alert(`The race winner is: ${winnerHorse}!`);
+    });
+
+    // Initial check
+    checkBets();
   </script>
 </body>
 </html>
