@@ -32,6 +32,12 @@
     #qrcode {
       margin-top: 20px;
     }
+    #winner {
+      font-size: 20px;
+      font-weight: bold;
+      color: green;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -39,6 +45,7 @@
   <div id="callNumber">Call Number: <span id="callNumberValue"></span></div>
   <div id="bets"></div>
   <div id="qrcode"></div>
+  <div id="winner"></div>
 
   <script>
     async function fetchBets() {
@@ -52,14 +59,14 @@
         const betsDiv = document.getElementById('bets');
         betsDiv.innerHTML = '';
         if (data.bets) {
-          data.bets.forEach((bet) => {
+          data.bets.forEach((bet, index) => {
             const betElement = document.createElement('p');
-            betElement.textContent = `User: ${bet.userName}, Horse: ${bet.horse}`;
+            betElement.textContent = `Player ${index + 1}: ${bet.userName} - Horse: ${bet.horse}`;
             betsDiv.appendChild(betElement);
           });
         }
       } catch (error) {
-        console.error('Fetch error: ', error);
+        console.error('Fetch error:', error);
       }
     }
 
@@ -67,7 +74,7 @@
       new QRCode(document.getElementById("qrcode"), {
         text: `https://dormantone.github.io/sandbox/betting.html?callNumber=${callNumber}`,
         width: 128,
-        height: 128,
+        height: 128
       });
     }
 
@@ -79,6 +86,5 @@
     }
 
     window.onload = createCallNumber;
-  </script>
-</body>
-</html>
+
+    document.getElementById('start
