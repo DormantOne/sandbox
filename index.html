@@ -87,4 +87,24 @@
 
     window.onload = createCallNumber;
 
-    document.getElementById('start
+    document.getElementById('startRaceButton').addEventListener('click', async () => {
+      const raceResults = ['red', 'blue', 'green', 'yellow'];
+      const winnerHorse = raceResults[Math.floor(Math.random() * raceResults.length)];
+
+      try {
+        const response = await fetch(`https://us-central1-sandbox-9dc3f.cloudfunctions.net/getBets?callNumber=${callNumber}`);
+        const data = await response.json();
+        const winner = data.bets.find(bet => bet.horse === winnerHorse);
+
+        const winnerDiv = document.getElementById('winner');
+        winnerDiv.textContent = `The race winner is: ${winnerHorse}! ${winner ? winner.userName + ' wins!' : 'No one wins.'}`;
+      } catch (error) {
+        console.error('Fetch error:', error);
+      }
+    });
+
+    // Initial check
+    checkBets();
+  </script>
+</body>
+</html>
