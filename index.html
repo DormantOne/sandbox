@@ -87,7 +87,8 @@
 
     window.onload = createCallNumber;
 
-    document.getElementById('startRaceButton').addEventListener('click', async () => {
+    async function declareWinner() {
+      const callNumber = document.getElementById('callNumberValue').textContent;
       const raceResults = ['red', 'blue', 'green', 'yellow'];
       const winnerHorse = raceResults[Math.floor(Math.random() * raceResults.length)];
 
@@ -101,10 +102,9 @@
       } catch (error) {
         console.error('Fetch error:', error);
       }
-    });
+    }
 
-    // Initial check
-    checkBets();
+    setInterval(declareWinner, 15000); // Declare winner every 15 seconds for testing, adjust as needed
   </script>
 </body>
 </html>
