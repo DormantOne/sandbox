@@ -97,11 +97,24 @@
       }
     }
 
-    document.getElementById('startRaceButton').addEventListener('click', () => {
+    document.getElementById('startRaceButton').addEventListener('click', async () => {
       const raceResults = ['red', 'blue', 'green', 'yellow'];
       const winnerHorse = raceResults[Math.floor(Math.random() * raceResults.length)];
 
-      alert(`The race winner is: ${winnerHorse}!`);
+      try {
+        const response = await fetch(`https://us-central1-sandbox-9dc3f.cloudfunctions.net/getBets?callNumber=${callNumber}`);
+        const data = await response.json();
+        const winner = data.bets.find(bet => bet.horse === winnerHorse);
+
+        alert(`The race winner is: ${winnerHorse}!`);
+        if (winner) {
+          alert(`${winner.userName} wins!`);
+        } else {
+          alert('No one wins.');
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+      }
     });
 
     // Initial check
